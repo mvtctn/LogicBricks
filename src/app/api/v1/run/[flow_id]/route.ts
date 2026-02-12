@@ -5,10 +5,10 @@ export const runtime = 'edge';
 
 export async function POST(
     req: NextRequest,
-    { params }: { params: { flow_id: string } }
+    { params }: { params: Promise<{ flow_id: string }> }
 ) {
     try {
-        const flowId = params.flow_id;
+        const { flow_id: flowId } = await params;
         const body = await req.json();
 
         const supabase = await createClient();
