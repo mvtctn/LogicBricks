@@ -4,85 +4,18 @@ import React, { useState } from 'react';
 import { Beaker, Play, Terminal, AlertCircle, CheckCircle2, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { useFlowStore } from '@/store/useFlowStore';
+import { useFlowStore } from '@/hooks/use-flow-store';
 import { cn } from '@/lib/utils';
 
 export default function TestLabPanel() {
-    const [jsonInput, setJsonInput] = useState('{\n  "age": 15,\n  "email": "user@example.com"\n}');
-    const [result, setResult] = useState<any>(null);
-    const [isRunning, setIsRunning] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    const { nodes, edges, setNodeStatus, resetAllStatuses } = useFlowStore();
-
-    const runFlow = async () => {
-        setIsRunning(true);
-        setError(null);
-        setResult(null);
-        resetAllStatuses();
-
-        try {
-            let currentData = JSON.parse(jsonInput);
-
-            // 1. Find Start Node
-            const startNode = nodes.find(n => n.type === 'startNode');
-            if (!startNode) throw new Error("Could not find 'Start' node in your flow.");
-
-            setNodeStatus(startNode.id, 'running');
-            await new Promise(r => setTimeout(r, 400)); // Visual delay
-            setNodeStatus(startNode.id, 'success');
-
-            let currentNodeId = startNode.id;
-            let pathFound = true;
-
-            while (pathFound) {
-                // Find outgoing edges
-                const nextEdge = edges.find(e => e.source === currentNodeId);
-                if (!nextEdge) {
-                    pathFound = false;
-                    break;
-                }
-
-                const nextNode = nodes.find(n => n.id === nextEdge.target);
-                if (!nextNode) {
-                    pathFound = false;
-                    break;
-                }
-
-                currentNodeId = nextNode.id;
-                setNodeStatus(currentNodeId, 'running');
-                await new Promise(r => setTimeout(r, 600)); // Visual delay
-
-                if (nextNode.type === 'processNode') {
-                    const code = nextNode.data.code;
-                    if (!code) {
-                        setNodeStatus(currentNodeId, 'error');
-                        throw new Error(`Process Node '${nextNode.data.label}' is not compiled yet.`);
-                    }
-
-                    try {
-                        // Execute code
-                        const executeLogic = new Function('data', code);
-                        const output = executeLogic(currentData);
-                        currentData = output ?? currentData; // If returns nothing, keep data
-                        setNodeStatus(currentNodeId, 'success');
-                    } catch (err: any) {
-                        setNodeStatus(currentNodeId, 'error');
-                        throw new Error(`Error in ${nextNode.data.label}: ${err.message}`);
-                    }
-                } else if (nextNode.type === 'endNode') {
-                    setNodeStatus(currentNodeId, 'success');
-                    setResult(currentData);
-                    pathFound = false;
-                }
-            }
-
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setIsRunning(false);
-        }
-    };
+    const {
+        testInput,
+        setTestInput,
+        testOutput,
+        logs,
+        isRunning,
+        runFlow
+    } = useFlowStore();
 
     return (
         <div className="w-80 h-full border-l border-white/5 flex flex-col bg-background/50 backdrop-blur-xl z-20">
@@ -101,9 +34,10 @@ export default function TestLabPanel() {
                         <Terminal size={12} className="text-white/20" />
                     </div>
                     <textarea
-                        value={jsonInput}
-                        onChange={(e) => setJsonInput(e.target.value)}
-                        className="w-full h-40 bg-black/40 border border-white/10 rounded-xl p-3 font-mono text-[11px] text-white/80 resize-none focus:outline-none focus:ring-1 focus:ring-primary transition-all"
+                        value={testInput}
+                        onChange={(e) => setTestInput(e.target.value)}
+                        className="w-full h-40 bg-black/40 border border-white/10 rounded-xl p-3 font-mono text-[11px] text-white/80 resize-none focus:outline-none focus:ring-1 focus:ring-primary transition-all md:h-64"
+                        placeholder='{ "key": "value" }'
                     />
                     <Button
                         onClick={runFlow}
@@ -125,48 +59,42 @@ export default function TestLabPanel() {
                 </div>
 
                 {/* Status / Output Section */}
-                <div className="space-y-3 flex-1 flex flex-col">
+                <div className="space-y-3 flex-1 flex flex-col min-h-0">
                     <Label className="text-[10px] uppercase font-bold text-white/40 tracking-widest">Execution Log</Label>
 
-                    <div className="flex-1 rounded-xl bg-black/20 border border-white/5 p-4 font-mono text-[11px] overflow-y-auto space-y-2">
-                        {!isRunning && !result && !error && (
+                    <div className="flex-1 rounded-xl bg-black/20 border border-white/5 p-4 font-mono text-[11px] overflow-y-auto space-y-2 max-h-[300px]">
+                        {logs.length === 0 && (
                             <div className="text-white/20 italic">Press Run to start simulation...</div>
                         )}
 
-                        {isRunning && (
-                            <div className="text-blue-400 flex items-center gap-2">
-                                <ChevronRight size={12} className="animate-pulse" />
-                                Traversing logic path...
+                        {logs.map((log, i) => (
+                            <div key={i} className={cn(
+                                "flex items-center gap-2",
+                                log.includes('[Error]') ? "text-red-400" :
+                                    log.includes('[Success]') ? "text-emerald-400" : "text-white/60"
+                            )}>
+                                {log.includes('[Execution]') && <ChevronRight size={10} className="text-primary" />}
+                                {log}
                             </div>
-                        )}
-
-                        {error && (
-                            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 flex items-start gap-2">
-                                <AlertCircle size={14} className="shrink-0 mt-0.5" />
-                                <div>
-                                    <div className="font-bold mb-0.5 uppercase text-[9px]">Execution Failed</div>
-                                    {error}
-                                </div>
-                            </div>
-                        )}
-
-                        {result && (
-                            <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                <div className="text-emerald-400 flex items-center gap-2 font-bold">
-                                    <CheckCircle2 size={14} />
-                                    SUCCESS
-                                </div>
-                                <div className="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10 ">
-                                    <div className="text-[9px] text-white/30 uppercase mb-2">Final Output</div>
-                                    <pre className="text-emerald-400/90 whitespace-pre-wrap">
-                                        {JSON.stringify(result, null, 2)}
-                                    </pre>
-                                </div>
-                            </div>
-                        )}
+                        ))}
                     </div>
+
+                    {testOutput && (
+                        <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <div className={cn(
+                                "p-3 rounded-lg border",
+                                testOutput.includes('Error') ? "bg-red-500/5 border-red-500/10 text-red-400" : "bg-emerald-500/5 border-emerald-500/10 text-emerald-400"
+                            )}>
+                                <div className="text-[9px] uppercase mb-2 opacity-50">Result Output</div>
+                                <pre className="whitespace-pre-wrap font-bold">
+                                    {testOutput}
+                                </pre>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
     );
 }
+

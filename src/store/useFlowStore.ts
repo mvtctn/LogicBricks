@@ -28,11 +28,15 @@ interface FlowState {
   nodes: LogicNode[];
   edges: Edge[];
   nodeStatus: Record<string, 'idle' | 'running' | 'success' | 'error'>;
+  currentFlowId: string | null;
+  currentFlowName: string;
   onNodesChange: OnNodesChange<LogicNode>;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
   setNodes: (nodes: LogicNode[]) => void;
   setEdges: (edges: Edge[]) => void;
+  setCurrentFlowId: (id: string | null) => void;
+  setCurrentFlowName: (name: string) => void;
   addNode: (node: LogicNode) => void;
   updateNodeData: (nodeId: string, data: Partial<LogicNodeData>) => void;
   setNodeStatus: (nodeId: string, status: 'idle' | 'running' | 'success' | 'error') => void;
@@ -43,6 +47,8 @@ export const useFlowStore = create<FlowState>((set, get) => ({
   nodes: [],
   edges: [],
   nodeStatus: {},
+  currentFlowId: null,
+  currentFlowName: 'New Flow',
   onNodesChange: (changes: NodeChange<LogicNode>[]) => {
     set({
       nodes: applyNodeChanges(changes, get().nodes),
@@ -63,6 +69,12 @@ export const useFlowStore = create<FlowState>((set, get) => ({
   },
   setEdges: (edges: Edge[]) => {
     set({ edges });
+  },
+  setCurrentFlowId: (id: string | null) => {
+    set({ currentFlowId: id });
+  },
+  setCurrentFlowName: (name: string) => {
+    set({ currentFlowName: name });
   },
   addNode: (node: LogicNode) => {
     set({

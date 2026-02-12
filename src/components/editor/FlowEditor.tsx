@@ -12,7 +12,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import { useFlowStore } from '@/store/useFlowStore';
+import { useFlowStore } from '@/hooks/use-flow-store';
 import { StartNode } from '../nodes/StartNode';
 import { ProcessNode } from '../nodes/ProcessNode';
 import { EndNode } from '../nodes/EndNode';
