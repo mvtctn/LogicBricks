@@ -3,14 +3,15 @@
 import React from 'react';
 import NodesSidebar from '@/components/editor/NodesSidebar';
 import FlowEditor from '@/components/editor/FlowEditor';
+import TestLabPanel from '@/components/editor/TestLabPanel';
 import { Box, Save, Play, Settings, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function EditorPage() {
     return (
-        <div className="flex flex-col h-screen w-full bg-background overflow-hidden">
+        <div className="flex flex-col h-screen w-full bg-background overflow-hidden font-sans">
             {/* Header */}
-            <header className="h-14 border-b border-white/5 flex items-center justify-between px-6 glass shrink-0 z-20">
+            <header className="h-14 border-b border-white/5 flex items-center justify-between px-6 glass shrink-0 z-30">
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
@@ -44,9 +45,10 @@ export default function EditorPage() {
             {/* Main Content */}
             <main className="flex-1 flex overflow-hidden">
                 <NodesSidebar />
-                <section className="flex-1 relative">
+                <section className="flex-1 relative overflow-hidden bg-background">
                     <FlowEditor />
                 </section>
+                <TestLabPanel />
             </main>
         </div>
     );

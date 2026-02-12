@@ -6,10 +6,19 @@ import { Cpu, Sparkles, CheckCircle2, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFlowStore } from '@/store/useFlowStore';
+import { cn } from '@/lib/utils';
 
 export const ProcessNode = memo(({ id, data, selected }: NodeProps) => {
     const updateNodeData = useFlowStore((state) => state.updateNodeData);
+    const status = useFlowStore((state) => state.nodeStatus[id]);
     const [isCompiling, setIsCompiling] = useState(false);
+
+    const statusColors: Record<string, string> = {
+        idle: selected ? 'border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.3)]' : 'border-blue-500/30',
+        running: 'border-blue-400 animate-pulse shadow-[0_0_20px_rgba(96,165,250,0.5)]',
+        success: 'border-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.5)]',
+        error: 'border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]',
+    };
 
     const handleCompile = async () => {
         if (!data.prompt) return;
@@ -34,7 +43,10 @@ export const ProcessNode = memo(({ id, data, selected }: NodeProps) => {
     };
 
     return (
-        <div className={`px-4 py-3 rounded-xl border-2 bg-card min-w-[240px] transition-all ${selected ? 'border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.3)]' : 'border-blue-500/30'}`}>
+        <div className={cn(
+            "px-4 py-3 rounded-xl border-2 bg-card min-w-[240px] transition-all duration-300",
+            statusColors[status || 'idle']
+        )}>
             <Handle type="target" position={Position.Left} className="w-3 h-3 !bg-blue-500 border-2 border-background" />
 
             <div className="flex items-center justify-between mb-3 border-b border-white/5 pb-2">

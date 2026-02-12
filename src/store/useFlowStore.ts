@@ -27,6 +27,7 @@ export type LogicNode = Node<LogicNodeData>;
 interface FlowState {
   nodes: LogicNode[];
   edges: Edge[];
+  nodeStatus: Record<string, 'idle' | 'running' | 'success' | 'error'>;
   onNodesChange: OnNodesChange<LogicNode>;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
@@ -34,18 +35,14 @@ interface FlowState {
   setEdges: (edges: Edge[]) => void;
   addNode: (node: LogicNode) => void;
   updateNodeData: (nodeId: string, data: Partial<LogicNodeData>) => void;
+  setNodeStatus: (nodeId: string, status: 'idle' | 'running' | 'success' | 'error') => void;
+  resetAllStatuses: () => void;
 }
 
 export const useFlowStore = create<FlowState>((set, get) => ({
-  nodes: [
-    {
-      id: '1',
-      type: 'trigger',
-      position: { x: 250, y: 5 },
-      data: { label: 'HTTP Trigger', type: 'trigger', description: 'Starts when an endpoint is called' },
-    },
-  ],
+  nodes: [],
   edges: [],
+  nodeStatus: {},
   onNodesChange: (changes: NodeChange<LogicNode>[]) => {
     set({
       nodes: applyNodeChanges(changes, get().nodes),
@@ -81,5 +78,13 @@ export const useFlowStore = create<FlowState>((set, get) => ({
         return node;
       }),
     });
+  },
+  setNodeStatus: (nodeId: string, status: 'idle' | 'running' | 'success' | 'error') => {
+    set((state) => ({
+      nodeStatus: { ...state.nodeStatus, [nodeId]: status },
+    }));
+  },
+  resetAllStatuses: () => {
+    set({ nodeStatus: {} });
   },
 }));
