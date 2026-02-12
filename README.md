@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🧱 LogicBricks - AI-Powered No-Code Backend Builder
 
-## Getting Started
+LogicBricks is a modern, visual development platform designed to build, test, and deploy production-ready backend logic using natural language. Built with **Next.js 15**, **React Flow**, and **AI-driven code generation**, it allows developers to create complex serverless workflows without writing manual boilerplate.
 
-First, run the development server:
+---
 
+## 🚀 Quick Start
+
+### 1. Prerequisites
+- **Node.js**: v18.x or higher
+- **Package Manager**: npm or yarn
+- **Supabase**: Account and project set up (optional for local demo)
+
+### 2. Installation
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Clone the repository
+git clone https://github.com/your-username/LogicBricks.git
+
+# Navigate to project directory
+cd LogicBricks
+
+# Install dependencies
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Environment Setup
+Create a `.env.local` file in the root directory and add your credentials:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+# API Key for logic generation (will be stored in localStorage via UI)
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 4. Running Locally
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) to see the application.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🛠 Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+- `src/app`: Next.js App Router (Landing, Dashboard, Editor, Docs)
+- `src/components`: UI components (Shadcn UI + Custom Editor components)
+- `src/store`: Global state management using **Zustand** (Flow engine logic)
+- `src/lib`: Utilities and database client configurations
+- `src/hooks`: Custom React hooks for theme and state interactions
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🧩 Usage Guide
 
-## Deploy on Vercel
+### Building a Flow
+1. **The Canvas**: Drag `Start`, `Process`, and `End` nodes from the left sidebar.
+2. **AI Logic**: Select a **Process Node**, enter a prompt (e.g., *"Filter users over age 20"*), and click **Compile**.
+3. **Execution**: Use the **Test Lab** (right sidebar) to provide JSON input and run the simulation.
+4. **Deployment**: Click **Deploy** to generate a live API endpoint for your logic.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ⬆️ Git Workflow & Deployment
+
+### Pushing Changes
+When you have made changes and want to sync with GitHub:
+
+```bash
+# 1. Check status
+git status
+
+# 2. Stage changes
+git add .
+
+# 3. Commit with a meaningful message
+git commit -m "feat: implement premium dashboard and dark mode"
+
+# 4. Push to main branch
+git push origin main
+```
+
+### Deployment (Vercel)
+This project is optimized for **Vercel**:
+1. Connect your GitHub repository to Vercel.
+2. Add the environment variables from `.env.local` to the Vercel project settings.
+3. Vercel will automatically deploy whenever you push to the `main` branch.
+
+---
+
+## 📜 License
+MIT License. Built with ❤️ by the LogicBricks Team.

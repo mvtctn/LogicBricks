@@ -17,25 +17,25 @@ export default function NodesSidebar() {
     };
 
     return (
-        <div className="w-64 border-r border-white/5 bg-background/50 backdrop-blur-xl p-4 flex flex-col gap-6">
+        <div className="h-full w-full bg-background/50 backdrop-blur-xl p-4 flex flex-col gap-6">
             <div>
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-4">Core Bricks</h3>
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/30 mb-4">Core Bricks</h3>
                 <div className="grid gap-3">
                     {nodeTypes.map((node) => (
                         <div
                             key={node.type}
                             draggable
                             onDragStart={(e) => onDragStart(e, node.type)}
-                            className="group flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 hover:bg-white/10 transition-all cursor-grab active:cursor-grabbing"
+                            className="group flex items-center gap-3 p-3 rounded-xl bg-muted/40 border border-border/50 hover:border-border hover:bg-muted transition-all cursor-grab active:cursor-grabbing"
                         >
                             <div className={cn("p-2 rounded-lg text-white", node.color)}>
                                 <node.icon size={16} />
                             </div>
                             <div className="flex-1">
-                                <div className="text-xs font-semibold">{node.label}</div>
-                                <div className="text-[10px] text-white/40 leading-tight">Drag to canvas</div>
+                                <div className="text-xs font-semibold text-foreground">{node.label}</div>
+                                <div className="text-[10px] text-muted-foreground/60 leading-tight">Drag to canvas</div>
                             </div>
-                            <Plus size={14} className="text-white/20 group-hover:text-white/60 transition-colors" />
+                            <Plus size={14} className="text-muted-foreground/20 group-hover:text-muted-foreground/60 transition-colors" />
                         </div>
                     ))}
                 </div>
@@ -43,7 +43,7 @@ export default function NodesSidebar() {
 
             <div className="mt-auto p-4 rounded-xl bg-primary/5 border border-primary/10">
                 <div className="text-[10px] font-bold text-primary uppercase mb-1">Tip</div>
-                <p className="text-[10px] text-white/40 leading-normal">
+                <p className="text-[10px] text-muted-foreground/60 leading-normal">
                     Connect nodes from right (source) to left (target) handles to define the logic flow.
                 </p>
             </div>
