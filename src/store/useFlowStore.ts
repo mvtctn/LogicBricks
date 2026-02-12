@@ -15,10 +15,11 @@ import {
 
 export type LogicNodeData = {
   label: string;
-  type: 'trigger' | 'action' | 'logic';
+  type: 'trigger' | 'action' | 'logic' | 'startNode' | 'processNode' | 'endNode';
   description?: string;
   config?: Record<string, any>;
   code?: string; // Compiled JS/Python code
+  prompt?: string; // Natural language logic
 };
 
 export type LogicNode = Node<LogicNodeData>;

@@ -1,43 +1,77 @@
 "use client";
 
-import React, { useCallback, useMemo } from 'react';
+import { useRef, useCallback } from 'react';
 import {
     ReactFlow,
     Background,
     Controls,
     Panel,
     NodeTypes,
+    useReactFlow,
+    ReactFlowProvider,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import { useFlowStore } from '@/store/useFlowStore';
-import { CustomNode } from './CustomNode';
-import { cn } from '@/lib/utils';
+import { StartNode } from '../nodes/StartNode';
+import { ProcessNode } from '../nodes/ProcessNode';
+import { EndNode } from '../nodes/EndNode';
 
 const nodeTypes: NodeTypes = {
-    trigger: CustomNode,
-    action: CustomNode,
-    logic: CustomNode,
+    startNode: StartNode,
+    processNode: ProcessNode,
+    endNode: EndNode,
 };
 
-export default function FlowEditor() {
-    const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = useFlowStore();
+let id = 0;
+const getId = () => `node_${id++}`;
 
-    const defaultEdgeOptions = useMemo(() => ({
-        animated: true,
-        style: { stroke: 'hsl(var(--primary))', strokeWidth: 2 },
-    }), []);
+function FlowCanvas() {
+    const reactFlowWrapper = useRef<HTMLDivElement>(null);
+    const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode } = useFlowStore();
+    const { screenToFlowPosition } = useReactFlow();
+
+    const onDragOver = useCallback((event: React.DragEvent) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+    }, []);
+
+    const onDrop = useCallback(
+        (event: React.DragEvent) => {
+            event.preventDefault();
+
+            const type = event.dataTransfer.getData('application/reactflow');
+
+            if (!type) return;
+
+            const position = screenToFlowPosition({
+                x: event.clientX,
+                y: event.clientY,
+            });
+
+            const newNode = {
+                id: getId(),
+                type,
+                position,
+                data: { label: `${type}`, prompt: '', type: type as any },
+            };
+
+            addNode(newNode);
+        },
+        [screenToFlowPosition, addNode]
+    );
 
     return (
-        <div className="w-full h-full relative">
+        <div className="w-full h-full" ref={reactFlowWrapper}>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
+                onDrop={onDrop}
+                onDragOver={onDragOver}
                 nodeTypes={nodeTypes}
-                defaultEdgeOptions={defaultEdgeOptions}
                 colorMode="dark"
                 fitView
                 className="logic-grid"
@@ -45,10 +79,18 @@ export default function FlowEditor() {
                 <Background color="#333" gap={20} />
                 <Controls className="!bg-background/80 !backdrop-blur-md !border-white/10 !rounded-lg" />
                 <Panel position="top-left" className="glass p-3 rounded-lg flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-xs font-medium text-white/70 tracking-wider uppercase">Live Editor</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] font-bold text-white/50 tracking-widest uppercase">Editor Mode</span>
                 </Panel>
             </ReactFlow>
         </div>
+    );
+}
+
+export default function FlowEditor() {
+    return (
+        <ReactFlowProvider>
+            <FlowCanvas />
+        </ReactFlowProvider>
     );
 }
